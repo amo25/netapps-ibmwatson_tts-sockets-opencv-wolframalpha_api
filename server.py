@@ -9,15 +9,26 @@ from watson_developer_cloud import TextToSpeechV1
 from pydub import AudioSegment
 from pydub.playback import play
 
+#print(str(len(sys.argv)))
+
+#arguments
+if len(sys.argv) == 5:
+    port = int(sys.argv[2])
+    size = int(sys.argv[4])
+else:
+    print("Argument format error. Use: python3 server.py -sp <SERVER_PORT> -z <SOCKET_SIZE>")
+
+
+
 text_to_speech = TextToSpeechV1(
     iam_apikey=ServerKeys.watson_api,
     url=ServerKeys.watson_url
 )
 
 host = ''
-port = 50000
+#port = 50000
 backlog = 5
-size = 1024
+#size = 1024
 s = None
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

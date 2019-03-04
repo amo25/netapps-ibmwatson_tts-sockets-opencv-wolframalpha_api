@@ -7,15 +7,28 @@ import ClientKeys
 from watson_developer_cloud import TextToSpeechV1
 from pydub import AudioSegment
 from pydub.playback import play
+import pyzbar.pyzbar as pyzbar
+import cv2
+import subprocess
+
+#print(str(len(sys.argv)))
+
+#arguments
+if len(sys.argv) == 7:
+    host = sys.argv[2]
+    port = int(sys.argv[4])
+    size = int(sys.argv[6])
+else:
+    print("Argument format error. Use: python3 client.py -sip <SERVER_IP> -sp <SERVER_PORT> -z <SOCKET_SIZE>")
 
 text_to_speech = TextToSpeechV1(
     iam_apikey=ClientKeys.watson_api,
     url=ClientKeys.watson_url
 )
 
-host = 'localhost'   #todo modify. Set to server IP
-port = 50000    #todo modify?
-size = 1024
+#host = '172.30.90.27'   #todo modify. Set to server IP
+#port = 50000    #todo modify?
+#size = 1024
 s = None
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -35,7 +48,16 @@ print("[Checkpoint 01] Connecting to " + str(host) + " on port " + str(port))
 #check that it's a question by seeing if last character is a question mark
 print("[Checkpoint 02] Listening for QR codes from RPi Camera that contain questions")
 #prob a while loop with a break when a question is encountered
-question = b"Who is the president of the US?"     #todo replace
+#take an image
+subprocess.call(["raspistill", "-o", "Camera_QR_Code.jpg"])
+#read image
+im = cv2.imread('Camera_QR_Code.jpg')
+#Find qr codes and barcodes in the image
+decodedObjects = pyzbar.decode(im)
+for obj in decodedObjects:
+    question = obj.data
+
+#question = b"Who is the president of the US?"     #todo replace
 print("[Checkpoint 03] New Question: " + str(question))
 
 #encrypt the question
